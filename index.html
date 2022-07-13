@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title></title>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+<body>
+	<div class="container">
+		<br><br>
+		<h3>Api Pokemón</h3>
+		<hr>
+		<input type="text" name="namePokemon" id="namePokemon" class="form-control">
+		<br><br>
+		<button onclick="llamarApi()" class="btn btn-success">Buscar Pokemón</button>
+		<button onclick="borrarDatos()" class="btn btn-warning">Borrar</button>
+		<br><br>
+		<img src="" id="imgPokemonBack">
+		<img src="" id="imgPokemonFront">
+		<img src="" id="imgPokemonBackShiny">
+		<img src="" id="imgPokemonFrontShiny">
+		<table class="table">
+			<thead class="thead-dark">
+				<tr>
+			    <th scope="col">N°</th>
+			    <th scope="col">Nombre</th>
+			    <th scope="col">Tipo</th>
+			    <th scope="col">Altura(Mts)</th>
+			    <th scope="col">Peso(Kg)</th>
+			    <th scope="col">Ataque 1</th>
+			    <th scope="col">Ataque 2</th>
+			    <th scope="col">Nido</th>
+			    </tr>
+			</thead>
+			<tbody>
+				<tr>
+			      <td><p id="id"></p></td>
+			      <td><p id="nombre"></p></td>
+			      <td><p id="tipo"></p></td>
+			      <td><p id="altura"></p></td>
+			      <td><p id="peso"></p></td>
+			      <td><p id="ataque1"></p></td>
+			      <td><p id="ataque2"></p></td>
+			      <td><p id="nido"></p></td>
+			    </tr>
+			</tbody>
+		</table>
+		<textarea name="textarea" rows="10" cols="50" id="textAreaPokemon" class="form-control"></textarea>
+	</div>
+
+<script type="text/javascript">
+
+	//LLamada a la API
+	function llamarApi() {
+		
+		//Capturar el valor del HTML
+		let inputValue = document.getElementById("namePokemon").value;
+
+		//Si viene nombre de pokemon lo busco , sino traigo un listado con los nombres de los primeros 1000 pokemones.
+		if(inputValue){
+			var endpoint = "https://pokeapi.co/api/v2/pokemon/" + inputValue;
+		} else {
+			var endpoint = "https://pokeapi.co/api/v2/pokemon?limit=1000";
+		}
+
+ 		var api = new XMLHttpRequest();
+		api.addEventListener("load", mostrarDatosPorConsola);
+		api.open("GET", endpoint);
+		api.setRequestHeader("Content-type", "application/json");
+		api.send();
+	}
+
+	//funcion que imprime los resultados
+	function mostrarDatosPorConsola() {
+		
+		//Imprimir los resultados en HTML (2 formas de hacerlo)
+		document.getElementById("textAreaPokemon").value = this.responseText;
+		//let inputValue = document.getElementById("textAreaPokemon").innerHTML = this.responseText;
+
+		//Transformo el JSON en un array JS
+		var array = JSON.parse(this.responseText);
+
+		//Valido si la propiedad sprite existe para evitar un error http 404 cuando aprieten el boton de buscar sin ningun pokemon ingresado (Ya que la api te retorna un listado de pokemon con el input en blanco)
+		if(array.sprites){
+			//Busco la imagen dentro del array y la coloco dentro del source del tag img
+			document.getElementById("imgPokemonBack").src = array.sprites.back_default;	
+			document.getElementById("imgPokemonFront").src = array.sprites.front_default;
+			document.getElementById("imgPokemonBackShiny").src = array.sprites.back_shiny;	
+			document.getElementById("imgPokemonFrontShiny").src = array.sprites.front_shiny;
+			document.getElementById("id").textContent = array.id;
+			document.getElementById("nombre").textContent = array.name;
+			document.getElementById("tipo").textContent = array.types[0].type.name;
+			document.getElementById("altura").textContent = array.height/10;
+			document.getElementById("peso").textContent = array.weight/10;
+			document.getElementById("ataque1").textContent = array.moves[0].move.name;
+			document.getElementById("ataque2").textContent = array.moves[1].move.name;
+			document.getElementById("nido").textContent = array.location_area_encounters;
+		}
+		
+		//Imprimir los resultados en la consola (2 formas de hacerlo)
+		console.log(array);
+ 		//console.log(this.responseText);
+	}
+
+	//Función para borrar los datos.
+	function borrarDatos() {
+		document.getElementById("namePokemon").value = "";
+		document.getElementById("textAreaPokemon").value = "";
+		document.getElementById("imgPokemonBackShiny").src = "";
+		document.getElementById("imgPokemonFrontShiny").src = "";
+		document.getElementById("imgPokemonBack").src = "";
+		document.getElementById("imgPokemonFront").src = "";
+		document.getElementById("id").textContent = "";
+		document.getElementById("nombre").textContent = "";
+		document.getElementById("tipo").textContent = "";
+		document.getElementById("altura").textContent = "";
+		document.getElementById("peso").textContent = "";
+		document.getElementById("ataque1").textContent = "";
+		document.getElementById("ataque2").textContent = "";
+		document.getElementById("nido").textContent = "";
+		console.clear();
+	}
+	
+</script>
+
+</body>
+</html>
